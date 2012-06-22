@@ -1,4 +1,4 @@
-package br.com.caelum.vraptor.serialization.xstream;
+package br.com.caelum.vraptor.serialization.gson;
 
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.Gson;

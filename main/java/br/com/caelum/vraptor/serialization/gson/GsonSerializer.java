@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package br.com.caelum.vraptor.serialization.xstream;
+package br.com.caelum.vraptor.serialization.gson;
 
 import static br.com.caelum.vraptor.serialization.xstream.VRaptorClassMapper.isPrimitive;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -145,7 +145,7 @@ public class GsonSerializer implements SerializerBuilder {
 			if (builder.isWithoutRoot()) {
 				writer.write(gson.toJson(root));
 			} else {
-				Map<String, Object> tree = new HashMap<>();
+				Map<String, Object> tree = new HashMap<String, Object>();
 				tree.put(alias, root);
 				writer.write(gson.toJson(tree));
 			}

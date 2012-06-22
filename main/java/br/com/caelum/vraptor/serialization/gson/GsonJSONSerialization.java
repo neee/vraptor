@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package br.com.caelum.vraptor.serialization.xstream;
+package br.com.caelum.vraptor.serialization.gson;
 
 import java.io.IOException;
 
