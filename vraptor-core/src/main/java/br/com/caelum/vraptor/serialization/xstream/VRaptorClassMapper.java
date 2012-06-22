@@ -39,7 +39,7 @@ public class VRaptorClassMapper extends MapperWrapper {
 		this.extractor = supplier;
 	}
 	
-	static boolean isPrimitive(Class<?> type) {
+	public static boolean isPrimitive(Class<?> type) {
 		return type.isPrimitive()
 			|| type.isEnum()
 			|| Number.class.isAssignableFrom(type)
