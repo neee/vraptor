@@ -77,9 +77,9 @@ import br.com.caelum.vraptor.ioc.fixture.DependentOnSomethingFromComponentFactor
 import br.com.caelum.vraptor.ioc.fixture.InterceptorInTheClasspath;
 import br.com.caelum.vraptor.ioc.fixture.ResourceInTheClasspath;
 import br.com.caelum.vraptor.resource.ResourceMethod;
-import br.com.caelum.vraptor.scan.ScannotationComponentScannerTest;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.Sets;
 
 /**
  * Acceptance test that checks if the container is capable of giving all
@@ -258,8 +258,13 @@ public abstract class GenericContainerTest {
 		when(context.getInitParameter(BASE_PACKAGES_PARAMETER_NAME)).thenReturn("br.com.caelum.vraptor.ioc.fixture");
 		when(context.getRealPath("/WEB-INF/classes")).thenReturn(getClassDir());
 
+        URL fixture = getClass().getResource("/test-fixture.jar");
+        
+        when(context.getResourcePaths("/WEB-INF/lib")).thenReturn(Sets.newHashSet(fixture.getFile().toString()));
+        when(context.getResource(fixture.getFile().toString())).thenReturn(fixture);
+        
 		when(context.getClassLoader()).thenReturn(
-				new URLClassLoader(new URL[] {ScannotationComponentScannerTest.class.getResource("/test-fixture.jar")}, 
+				new URLClassLoader(new URL[] {getClass().getResource("/test-fixture.jar")}, 
 						currentThread().getContextClassLoader()));
 
         //allowing(context).getInitParameter(ENCODING);

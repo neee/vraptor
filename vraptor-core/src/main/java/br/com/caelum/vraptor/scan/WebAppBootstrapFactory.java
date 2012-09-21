@@ -31,8 +31,7 @@ import br.com.caelum.vraptor.config.BasicConfiguration;
  */
 public class WebAppBootstrapFactory {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(WebAppBootstrapFactory.class);
+	private static final Logger logger = LoggerFactory.getLogger(WebAppBootstrapFactory.class);
 
 	/**
 	 * Returns the WebAppBootstrap for this web application
@@ -56,16 +55,14 @@ public class WebAppBootstrapFactory {
 
 	private WebAppBootstrap tryStaticBootstrap() {
 		try {
-			Class<?> clazz = Class
-					.forName(WebAppBootstrap.STATIC_BOOTSTRAP_NAME);
+			Class<?> clazz = Class.forName(WebAppBootstrap.STATIC_BOOTSTRAP_NAME);
 
 			logger.info("Found a static WebAppBootstrap; using it and skipping classpath scanning.");
 			return (WebAppBootstrap) clazz.newInstance();
 		} catch (ClassNotFoundException e) {
 			return null;
 		} catch (Exception e) {
-			throw new ScannerException(
-					"Error while creating the StaticWebAppBootstrap", e);
+			throw new ScannerException("Error while creating the StaticWebAppBootstrap", e);
 		}
 	}
 
@@ -73,11 +70,10 @@ public class WebAppBootstrapFactory {
 		logger.info("Dynamic WebAppBootstrap found.");
 
 		// dinamically scan the classpath if there's no static cache generated
-		ClasspathResolver resolver = new WebBasedClasspathResolver(
-				config.getServletContext());
+		ClasspathResolver resolver = new WebBasedClasspathResolver(config.getServletContext());
 
 		logger.trace("Start classpath scanning");
-		ComponentScanner scanner = new ScannotationComponentScanner();
+		ComponentScanner scanner = new ReflectionsComponentScanner();
 		Collection<String> classNames = scanner.scan(resolver);
 		logger.trace("End classpath scanning");
 

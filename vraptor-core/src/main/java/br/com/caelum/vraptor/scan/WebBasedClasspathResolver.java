@@ -19,8 +19,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.ServletContext;
+
+import org.reflections.util.ClasspathHelper;
 
 import br.com.caelum.vraptor.config.BasicConfiguration;
 
@@ -30,7 +33,7 @@ import br.com.caelum.vraptor.config.BasicConfiguration;
  * @author Sérgio Lopes
  * @since 3.2
  */
-public class WebBasedClasspathResolver implements ClasspathResolver {
+public class WebBasedClasspathResolver extends AbstractClasspathResolver implements ClasspathResolver {
 
 	private final ServletContext servletContext;
 
@@ -42,21 +45,16 @@ public class WebBasedClasspathResolver implements ClasspathResolver {
 		if (servletContext.getMajorVersion() == 3) {
 			return servletContext.getClassLoader();
 		}
+		
 		return Thread.currentThread().getContextClassLoader();
 	}
 
 	public URL findWebInfClassesLocation() {
-		try {
-			String webInfClassesDir = servletContext.getRealPath("/WEB-INF/classes");
-			if (webInfClassesDir != null) {
-				return new URL("file:" + webInfClassesDir + "/");
-			} else {
-				// try to guess WEB-INF/classes from vraptor.jar location
-				return new StandaloneClasspathResolver().findWebInfClassesLocation();
-			}
-		} catch (Exception e) {
-			throw new ScannerException("Could not determine WEB-INF/classes location", e);
-		}
+		return ClasspathHelper.forWebInfClasses(servletContext);
+	}
+	
+	public Set<URL> findWebInfLibLocations() {
+		return ClasspathHelper.forWebInfLib(servletContext);
 	}
 
 	public List<String> findBasePackages() {
@@ -69,7 +67,8 @@ public class WebBasedClasspathResolver implements ClasspathResolver {
 		}
 
 		// find plugin packages
-		new StandaloneClasspathResolver().getPackagesFromPluginsJARs(packages);
+		getPackagesFromPluginsJARs(packages);
+		
 		return packages;
 	}
 }

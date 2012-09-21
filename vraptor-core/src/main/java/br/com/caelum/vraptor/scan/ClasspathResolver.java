@@ -17,6 +17,7 @@ package br.com.caelum.vraptor.scan;
 
 import java.net.URL;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A helper to help locate WEB-INF/classes and all base packages to be scanned
@@ -27,19 +28,25 @@ import java.util.List;
 public interface ClasspathResolver {
 
 	/**
-	 * Where is WEB-INF/classes?
-	 *
+	 * Returns the WEB-INF location.
 	 * @return WEB-INF/classes location
 	 */
 	URL findWebInfClassesLocation();
 
 	/**
-	 * Find all base packages, including the ones using the new META-INF configuration
+	 * Returns a collection of all jars located inside WEB-INF/lib.
+	 * @return WEB-INF/classes location
+	 */
+	Set<URL> findWebInfLibLocations();
+
+	/**
+	 * Find all base packages, including the ones using the new META-INF configuration.
 	 * @return an array of base packages
 	 */
 	List<String> findBasePackages();
-
+	
 	/**
+	 * Return the classloader.
 	 * @return the class loader
 	 */
 	ClassLoader getClassLoader();

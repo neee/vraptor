@@ -44,7 +44,7 @@ public class VRaptorStaticScanning {
 		}
 
 		System.out.print("Initiating the scanning...");
-		ComponentScanner scanner = new ScannotationComponentScanner();
+		ComponentScanner scanner = new ReflectionsComponentScanner();
 		Collection<String> classes = scanner.scan(cpr);
 		System.out.println(" done.");
 

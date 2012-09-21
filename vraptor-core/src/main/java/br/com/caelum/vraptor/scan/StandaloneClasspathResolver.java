@@ -16,14 +16,13 @@
 package br.com.caelum.vraptor.scan;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Scanner;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -40,7 +39,7 @@ import org.w3c.dom.NodeList;
  * @author Sérgio Lopes
  * @since 3.2
  */
-public class StandaloneClasspathResolver implements ClasspathResolver {
+public class StandaloneClasspathResolver extends AbstractClasspathResolver implements ClasspathResolver {
 
 	private static final Logger logger = LoggerFactory.getLogger(StandaloneClasspathResolver.class);
 	private final File webxml;
@@ -48,9 +47,8 @@ public class StandaloneClasspathResolver implements ClasspathResolver {
 	public StandaloneClasspathResolver() {
 		// try to discover web.xml location related to vraptor.jar
 		String vraptor = "br/com/caelum/vraptor/VRaptor.class";
-		URL vraptorJAR = getClassLoader().getResource(vraptor);
-		String filename = vraptorJAR.getPath();
-
+		String filename = getClassLoader().getResource(vraptor).getPath();
+		
 		int jarSeparationIndex = filename.lastIndexOf('!');
 		filename = filename.substring(filename.indexOf(':') + 1, jarSeparationIndex == -1 ? filename.length() - 1: jarSeparationIndex);
 		filename = filename.substring(0, filename.lastIndexOf('/'));
@@ -69,7 +67,7 @@ public class StandaloneClasspathResolver implements ClasspathResolver {
 	// find WEB-INF classes related to web.xml
 	public URL findWebInfClassesLocation() {
 		try {
-			File webInfClasses = new File(this.getWebxml().getParent() + "/classes");
+			File webInfClasses = new File(getWebxml().getParent(), "/classes");
 			if (webInfClasses.exists()) {
 				return new URL("file:" + webInfClasses.getAbsolutePath() + "/");
 			}
@@ -78,9 +76,27 @@ public class StandaloneClasspathResolver implements ClasspathResolver {
 			throw new ScannerException("Could not determine WEB-INF/classes location", e);
 		}
 	}
+	
+	public Set<URL> findWebInfLibLocations() {
+		try {
+			File directory = new File(getWebxml().getParent(), "/lib");
+			if (directory.exists()) {
+				Set<URL> libs = new HashSet<URL>();
+				
+				for (File lib : directory.listFiles()) {
+					libs.add(lib.toURI().toURL());
+				}
+				
+				return libs;
+			}
+			throw new ScannerException("Could not determine WEB-INF/lib location");
+		} catch (MalformedURLException e) {
+			throw new ScannerException("Could not determine WEB-INF/lib location", e);
+		}
+	}
 
 	public List<String> findBasePackages() {
-		ArrayList<String> packages = new ArrayList<String>();
+		List<String> packages = new ArrayList<String>();
 		getPackagesFromWebXml(packages);
 		getPackagesFromPluginsJARs(packages);
 		return packages;
@@ -108,29 +124,6 @@ public class StandaloneClasspathResolver implements ClasspathResolver {
 			logger.debug("No <context-param> found in web.xml");
 		} catch (Exception e) {
 			throw new ScannerException("Problems while parsing web.xml", e);
-		}
-	}
-
-	/**
-	 * find plugin packages
-	 * @param result
-	 */
-	void getPackagesFromPluginsJARs(List<String> result) {
-		try {
-			ClassLoader classLoader = getClassLoader();
-			Enumeration<URL> urls = classLoader.getResources("META-INF/br.com.caelum.vraptor.packages");
-
-			while (urls.hasMoreElements()) {
-				URL url = urls.nextElement();
-				String packagesConfig = new Scanner(url.openStream()).useDelimiter("\\Z").next();
-				if (packagesConfig != null) {
-					Collections.addAll(result, packagesConfig.trim().split("\\s*,\\s*"));
-				} else {
-					logger.warn("Plugin packages file was empty: {}", url.getPath());
-				}
-			}
-		} catch (IOException e) {
-			logger.error("Exception while searching for packages file inside JARs", e);
 		}
 	}
 
